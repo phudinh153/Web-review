@@ -1,0 +1,37 @@
+ <% layout('layouts/boilerplate') %>
+    <label for="location">Find location: </label>
+    <input type="text" name="location" id="location" placeholder="Search Location">
+    <div>
+    <a href="/attraction/new">Add destination</a>
+    </div>
+
+    <h1>Lists of destinations</h1>
+
+    <ul>
+
+    <% for(let area of areas) { %>
+        <div class="card" mb-3>
+            <div class="row">
+                <div class="col-md-4">
+                    <img class="img-fluid" alt="" src="<%= area.image%>">
+                </div>
+                <div class="col-mg-8">
+                    <div class="card-body">
+                        <h5 class="card-title">
+                            <%= area.title  %>
+                        </h5>
+
+                        <p class="card-text"><%=area.description%></p>
+                        <p class="card-text">
+                            <small class="text-muted"><%=area.location%></small>
+                        </p>
+                        <a class="btn btn-primary" href="/attraction/<%= area._id %>">View <%= area.title %></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    <% } %>
+
+    </ul>
+
+
