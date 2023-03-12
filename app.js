@@ -4,10 +4,11 @@ const path = require('path');
 const Area = require('./models/attraction.js');
 const ejsMate = require('ejs-mate');
 const joi = require('joi');
-const {areaSchema} = require('./schemas.js');
+const {areaSchema, reviewSchema} = require('./schemas.js');
 const catchAsync = require('./utilities/catchAsync.js');
 const expError = require('./utilities/expError.js');
 const methodOverride = require('method-override');
+const Review = require('./models/review')
 
 mongoose.set('strictQuery', false);
 mongoose.connect('mongodb://127.0.0.1:27017/tourArea', () =>{
@@ -44,6 +45,18 @@ const validateArea = (req, res, next) => {
     
 }
 
+const validateReview = (req, res, next) => {
+    
+    const {error}= reviewSchema.validate(req.body);
+    if(error){
+        const msg = error.details.map(el => el.message).join(',');
+        throw new expError(msg, 400);
+    } else{
+        next();
+    }
+    
+}
+
 //HOME
 app.get('/', (req, res) => {
     res.render('home.ejs');
@@ -70,8 +83,8 @@ app.post('/attraction', validateArea, catchAsync(async(req, res) => {
 
 app.get('/attraction/:id', catchAsync(async (req, res) => {
     const {id} = req.params;
-    const area = await Area.findById(id);
-
+    const area = await Area.findById(id).populate('reviews');
+    console.log(area);
     res.render('attraction/show.ejs', {area});
 }))
 
@@ -91,6 +104,21 @@ app.delete('/attraction/:id',catchAsync(async (req, res) => {
     await Area.findByIdAndDelete(id);
     res.redirect('/attraction');
 }))
+
+app.post('/attraction/:id/reviews', validateReview, catchAsync(async (req, res) => {
+    const area = await Area.findById(req.params.id);
+    const review = new Review(req.body.review);
+    area.reviews.push(review);
+    await review.save();
+    await area.save();
+    res.redirect(`/attraction/${area._id}`);
+}))
+
+app.delete('/attraction/:id/reviews/:reviewId', catchAsync(async (req, res) => {
+    
+    await Review.findByIdAndDelete(req.params.reviewId);
+    res.send("Delete!!")
+}));
 
 app.all('*', (req, res, next) => {
     next(new expError('Page not found', 404));
