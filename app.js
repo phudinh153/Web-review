@@ -84,7 +84,6 @@ app.post('/attraction', validateArea, catchAsync(async(req, res) => {
 app.get('/attraction/:id', catchAsync(async (req, res) => {
     const {id} = req.params;
     const area = await Area.findById(id).populate('reviews');
-    console.log(area);
     res.render('attraction/show.ejs', {area});
 }))
 
@@ -115,9 +114,10 @@ app.post('/attraction/:id/reviews', validateReview, catchAsync(async (req, res) 
 }))
 
 app.delete('/attraction/:id/reviews/:reviewId', catchAsync(async (req, res) => {
-    
-    await Review.findByIdAndDelete(req.params.reviewId);
-    res.send("Delete!!")
+    const {id, reviewId} = req.params;
+    await Area.findByIdAndUpdate(id, {$pull: {reviews: reviewId}});
+    await Review.findByIdAndDelete(reviewId);
+    res.redirect(`/attraction/${id}`);
 }));
 
 app.all('*', (req, res, next) => {

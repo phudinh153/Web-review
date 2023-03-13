@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const Review = require('./review.js')
 
 const touristAreaSchema = new mongoose.Schema({
     title: String,
@@ -11,6 +12,16 @@ const touristAreaSchema = new mongoose.Schema({
         ref: 'Review'
     }]
 });
+
+touristAreaSchema.post('findOneAndDelete', async function(doc){
+    if(doc){
+        await Review.deleteMany({
+            _id: {
+                $in: doc.reviews
+            }
+        })
+    }
+} )
 
 module.exports = mongoose.model('Area', touristAreaSchema);
 
