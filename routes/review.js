@@ -24,6 +24,7 @@ router.post('/', validateReview, catchAsync(async (req, res) => {
     area.reviews.push(review);
     await review.save();
     await area.save();
+    req.flash('success', 'New review created!');
     res.redirect(`/attraction/${area._id}`);
 }))
 
@@ -31,6 +32,7 @@ router.delete('/:reviewId', catchAsync(async (req, res) => {
     const {id, reviewId} = req.params;
     await Area.findByIdAndUpdate(id, {$pull: {reviews: reviewId}});
     await Review.findByIdAndDelete(reviewId);
+    req.flash('success', 'Successfully deleted review!');
     res.redirect(`/attraction/${id}`);
 }));
 

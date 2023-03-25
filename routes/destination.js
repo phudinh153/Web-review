@@ -31,13 +31,17 @@ router.post('/', validateArea, catchAsync(async(req, res) => {
     
     const area = new Area(req.body.area);
     await area.save();
+    req.flash('success', 'Successfully made a new campground!');
     res.redirect(`/attraction/${area._id}`);
     
 }))
 
 router.get('/:id', catchAsync(async (req, res) => {
-    const {id} = req.params;
-    const area = await Area.findById(id).populate('reviews');
+    const area = await Area.findById(req.params.id).populate('reviews');
+    if(!area){
+        req.flash('error', 'Cannot find that destination!!!');
+        return res.redirect('/attraction');
+    }
     res.render('attraction/show.ejs', {area});
 }))
 
@@ -55,6 +59,7 @@ router.put('/:id', validateArea, catchAsync(async (req, res) => {
 router.delete('/:id',catchAsync(async (req, res) => {
     const {id} = req.params;
     await Area.findByIdAndDelete(id);
+    req.flash('success', 'Successfully deleted destination!');
     res.redirect('/attraction');
 }))
 
