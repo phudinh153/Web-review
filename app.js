@@ -6,10 +6,16 @@ const expError = require('./utilities/expError.js');
 const methodOverride = require('method-override');
 const session = require('express-session');
 const flash = require('connect-flash');
-const ObjectID = require('mongoose').Types.ObjectId;
+const localStrategy = require('passport-local');
+const User = require('./models/user');
+const passport = require('passport');
 
-const destination = require('./routes/destination.js');
-const review = require('./routes/review.js');
+
+
+const userRoutes = require('./routes/users.js');
+const destinationRoutes = require('./routes/destination.js');
+const reviewRoutes = require('./routes/review.js');
+
 
 mongoose.set('strictQuery', false);
 
@@ -49,14 +55,28 @@ const sessionConfig = {
 app.use(session(sessionConfig));
 app.use(flash());
 
+app.use((passport.initialize()));
+app.use(passport.session());
+passport.use(new localStrategy(User.authenticate()));
+
+passport.serializeUser(User.serializeUser());
+passport.deserializeUser(User.deserializeUser());
+
 app.use((req, res, next) => {
     res.locals.success = req.flash('success');
     res.locals.error = req.flash('error');
     next();
   })
 
-app.use('/attraction', destination);
-app.use('/attraction/:id/reviews', review);
+app.get('/fakeUser', async(req, res) => {
+  const user = new User({email: 'phu@gmail.com', username: 'phuxa'});
+  const newUser = await User.register(user, 'hedgehog');
+  res.send(newUser);
+})
+
+app.use('/', userRoutes)
+app.use('/attraction', destinationRoutes);
+app.use('/attraction/:id/reviews', reviewRoutes);
 
 //HOME
 app.get('/', (req, res) => {

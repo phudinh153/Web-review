@@ -4,7 +4,8 @@ const Area = require('../models/attraction.js');
 const catchAsync = require('../utilities/catchAsync.js');
 const expError = require('../utilities/expError.js');
 const {reviewSchema} = require('../schemas.js');
-const Review = require('../models/review')
+const Review = require('../models/review');
+const isLoggedIn = require('../middleware.js');
 
 const validateReview = (req, res, next) => {
     
