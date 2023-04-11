@@ -13,8 +13,12 @@ router.post('/register', catchAsync(async(req, res) => {
         const {email, username, password} = req.body;
         const user = new User({email, username});
         const registeredUser = await User.register(user, password);
-        req.flash('success','Welcome to Tourist Destinations Review');
-        res.redirect('/attraction');
+        req.login(registeredUser, e => {
+            if(e) return next(e);
+            req.flash('success','Welcome to Tourist Destinations Review');
+            res.redirect('/attraction');
+        })
+        
     }
     catch(e) {
         req.flash('error', e.message);
@@ -26,11 +30,27 @@ router.get('/login', (req, res) => {
     res.render('users/login');
 });
 
-router.post('/login', passport.authenticate('local', {failureFlash: true, failureRedirect: '/login'}), (req, res) => {
-    req.flash('success', 'Welcome back');
-    res.redirect('/attraction');
+router.post('/login', (req, res, next) => {
+  let returnTo = req.session.returnTo;
+  if(!req.session.returnTo){
+    returnTo = '/attraction'
+  }
+  passport.authenticate('local', {
+    failureFlash: true,
+    failureRedirect: '/login',
+  })(req, res, next);
+}, (req, res, next) => {
+  req.flash('success', 'Welcome back!');
+  const redirectUrl = req.session.returnTo;
+  console.log(req.session);
+  if (req.session.returnTo && req.session.returnTo !== redirectUrl) {
+    delete req.session.returnTo;
+  }
+
+  return res.redirect(redirectUrl || '/attraction');
 });
 
+  
 router.get('/logout', async (req, res, next)  => {
     req.logout((err) => {
         if (err) {
