@@ -2,7 +2,7 @@
 <div class="row">
     <h1 class="text-center">New Destination</h1>
     <div class="col-6 offset-3">
-        <form action="/attraction" method="post" novalidate class="validated-form">
+        <form action="/attraction" method="post" novalidate class="validated-form" enctype="multipart/form-data">
             <div class="mb-3">
             <label for="title" class="form-label">Title</label>
             <input type="text" class="form-control" name="area[title]" id="title" placeholder="Ex: Fire Beach" required>
@@ -18,13 +18,9 @@
                     Passed!
                 </div>
             </div>
-            <div class="mb-3">
-                <label for="image" class="form-label">Image Url</label>
-                <input type="text" class="form-control" name="area[image]" id="image" required>
-                <div class="valid-feedback">
-                    Passed!
-                </div>
-            </div>
+            
+            <input type="file" name="area[image]" id="image" >
+            
             <div class="mb-3">
                 <label for="price" class="form-label">Destination Price</label>
                 <div class="input-group">
