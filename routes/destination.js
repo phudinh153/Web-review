@@ -4,8 +4,8 @@ const catchAsync = require('../utilities/catchAsync.js');
 const {isLoggedIn, checkAuthor, validateArea} = require('../middleware.js');
 const destinations = require('../controllers/destinations.js');
 const multer = require('multer');
-const upload = multer({dest: 'uploads/'});
-const {storage} = require('..')
+const upload = multer({storage});
+const {storage} = require('../cloudinary');
 
 router.route('/')
     .get(catchAsync(destinations.index))
