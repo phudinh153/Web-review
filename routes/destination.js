@@ -4,15 +4,13 @@ const catchAsync = require('../utilities/catchAsync.js');
 const {isLoggedIn, checkAuthor, validateArea} = require('../middleware.js');
 const destinations = require('../controllers/destinations.js');
 const multer = require('multer');
-const upload = multer({storage});
 const {storage} = require('../cloudinary');
+const upload = multer({storage});
 
 router.route('/')
     .get(catchAsync(destinations.index))
-    // .post(isLoggedIn, validateArea, catchAsync(destinations.addDestination));
-    .post(upload.single('area[image]'), (req, res) => {
-        res.send(req.body, req.file)
-    })
+    .post(isLoggedIn, upload.array('area[images]'), validateArea, catchAsync(destinations.addDestination));
+   
 
 router.get('/new', isLoggedIn, destinations.renderNewForm);
 
@@ -20,7 +18,7 @@ router.get('/new', isLoggedIn, destinations.renderNewForm);
 
 router.route('/:id')
     .get(catchAsync(destinations.showDest))
-    .put(isLoggedIn, checkAuthor, validateArea, catchAsync(destinations.updateDest))
+    .put(isLoggedIn, checkAuthor, upload.array('area[images]'), validateArea, catchAsync(destinations.updateDest))
     .delete(isLoggedIn, checkAuthor, catchAsync(destinations.deleteDest));
 
 router.get('/:id/edit', isLoggedIn, checkAuthor, catchAsync(destinations.renderEdit));

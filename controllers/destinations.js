@@ -9,7 +9,9 @@ module.exports.renderNewForm = (req, res) => {
 };
 
 module.exports.addDestination = async(req, res) => {
+    
     const area = new Area(req.body.area);
+    area.images = req.files.map(f => ({url: f.path, filename: f.filename}));
     area.author = req.user._id;
     await area.save();
     req.flash('success', 'Successfully made a new campground!');
